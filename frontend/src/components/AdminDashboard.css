@@ -1,0 +1,126 @@
+.admin-dashboard {
+  min-height: 100vh;
+  background-color: #282c34;
+  color: white;
+}
+
+.dashboard-header {
+  padding: 2rem;
+  text-align: center;
+  border-bottom: 1px solid #61dafb;
+}
+
+.dashboard-header h1 {
+  color: #61dafb;
+  margin: 0;
+  margin-bottom: 1rem;
+}
+
+.dashboard-content {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.admin-section {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 2rem;
+}
+
+.admin-section h2 {
+  color: #61dafb;
+  margin-top: 0;
+}
+
+.admin-features {
+  list-style-type: none;
+  padding: 0;
+  margin: 2rem 0;
+}
+
+.admin-features li {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.admin-features li:before {
+  content: "•";
+  color: #61dafb;
+  position: absolute;
+  left: 0;
+}
+
+.admin-actions {
+  margin-top: 2rem;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.admin-button {
+  background-color: #61dafb;
+  color: #282c34;
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.admin-button:hover {
+  background-color: #4fa8d5;
+}
+
+.admin-button:disabled {
+  background-color: #4fa8d5;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.cleanup-button {
+  background-color: #dc3545;
+  color: white;
+}
+
+.cleanup-button:hover {
+  background-color: #c82333;
+}
+
+.message {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.message.error {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+
+.message.success {
+  background-color: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+}
+
+.logout-button {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 1rem;
+}
+
+.logout-button:hover {
+  background-color: #5a6268;
+} 

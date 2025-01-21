@@ -1,0 +1,83 @@
+.view-challenge-container {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+}
+
+.challenge-details {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.challenge-details h2 {
+  margin-top: 0;
+  color: #333;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 10px;
+}
+
+.description {
+  font-size: 1.1em;
+  line-height: 1.6;
+  color: #555;
+  margin: 20px 0;
+}
+
+.challenge-info {
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  padding: 15px;
+  margin: 20px 0;
+}
+
+.challenge-info p {
+  margin: 10px 0;
+  color: #666;
+}
+
+.challenge-info strong {
+  color: #333;
+}
+
+.chat-toggle-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 1em;
+  margin: 20px 0;
+  transition: background-color 0.2s;
+}
+
+.chat-toggle-button:hover {
+  background-color: #0056b3;
+}
+
+.back-button {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 1em;
+  margin-top: 20px;
+  transition: background-color 0.2s;
+}
+
+.back-button:hover {
+  background-color: #5a6268;
+}
+
+.error-message {
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  padding: 15px;
+  margin: 20px 0;
+} 

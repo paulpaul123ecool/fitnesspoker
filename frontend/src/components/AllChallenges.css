@@ -1,0 +1,219 @@
+.all-challenges {
+  min-height: 100vh;
+  background-color: #282c34;
+  color: white;
+}
+
+.all-challenges-header {
+  padding: 2rem;
+  text-align: center;
+  border-bottom: 1px solid #61dafb;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+}
+
+.all-challenges-header h1 {
+  color: #61dafb;
+  margin: 0;
+}
+
+.all-challenges-content {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.challenges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.challenge-card {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.challenge-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.challenge-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.challenge-header h4 {
+  color: #61dafb;
+  margin: 0;
+  font-size: 1.2rem;
+  flex: 1;
+}
+
+.chat-button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-left: 1rem;
+}
+
+.chat-button:hover {
+  background-color: #45a049;
+}
+
+.chat-button.active {
+  background-color: #dc3545;
+}
+
+.chat-button.active:hover {
+  background-color: #c82333;
+}
+
+.challenge-description {
+  color: #ddd;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.challenge-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.challenge-details span {
+  color: #bbb;
+}
+
+.challenge-bet {
+  color: #4caf50 !important;
+  font-weight: 600;
+}
+
+.challenge-status {
+  text-transform: capitalize;
+}
+
+.status-active {
+  color: #4caf50 !important;
+}
+
+.status-completed {
+  color: #61dafb !important;
+}
+
+.status-cancelled {
+  color: #dc3545 !important;
+}
+
+.challenge-creator {
+  grid-column: 1 / -1;
+  color: #61dafb !important;
+}
+
+.is-creator {
+  font-weight: 600;
+  color: #4caf50 !important;
+}
+
+.challenge-participant-status {
+  grid-column: 1 / -1;
+  color: #ffc107 !important;
+  font-style: italic;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #61dafb;
+}
+
+.error-message {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-top: 1rem;
+}
+
+.no-challenges {
+  text-align: center;
+  color: #bbb;
+  padding: 2rem;
+}
+
+.back-button {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.back-button:hover {
+  background-color: #5a6268;
+}
+
+.challenge-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.delete-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-left: 1rem;
+}
+
+.delete-button:hover {
+  background-color: #c82333;
+}
+
+.delete-button:disabled {
+  background-color: #dc354580;
+  cursor: not-allowed;
+}
+
+.creator-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.creator-profile-pic {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #4CAF50;
+}
+
+.chat-section {
+  margin-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 1rem;
+} 
