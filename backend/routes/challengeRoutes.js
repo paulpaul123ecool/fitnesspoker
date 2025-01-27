@@ -27,8 +27,12 @@ router.get('/all', auth, async (req, res) => {
     console.log('Fetching all challenges');
     console.log('Current user ID:', req.user.id);
     
+    // Find challenges that:
+    // 1. Are not cancelled
+    // 2. Have no participants (not yet accepted)
     const challenges = await Challenge.find({
-      status: { $ne: 'cancelled' } // Show all challenges except cancelled ones
+      status: { $ne: 'cancelled' },
+      participants: { $size: 0 }  // Only show challenges with no participants
     }).sort({ createdAt: -1 });
     
     // Get all unique creator IDs
@@ -49,36 +53,54 @@ router.get('/all', auth, async (req, res) => {
     
     // Add user information to each challenge
     const enhancedChallenges = challenges.map(challenge => {
-      const isCreator = String(challenge.createdBy) === String(req.user.id);
       const creatorProfile = profileMap[challenge.createdBy] || { name: 'Unknown User', profilePicture: null };
-      
-      console.log(`Challenge ${challenge._id}:`, {
-        createdBy: String(challenge.createdBy),
-        userId: String(req.user.id),
-        isCreator,
-        creatorProfile
-      });
+      const isCreator = String(challenge.createdBy) === String(req.user.id);
       
       return {
         ...challenge.toObject(),
         isCreator,
-        isParticipant: challenge.participants.some(p => p.userId === req.user.id),
         creatorName: creatorProfile.name,
         creatorProfilePicture: creatorProfile.profilePicture
       };
     });
     
-    console.log('Enhanced challenges:', enhancedChallenges.map(c => ({
-      id: c._id,
-      createdBy: c.createdBy,
-      isCreator: c.isCreator,
-      creatorName: c.creatorName,
-      creatorProfilePicture: c.creatorProfilePicture
-    })));
-    
     res.json(enhancedChallenges);
   } catch (error) {
     console.error('Error fetching all challenges:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Accept a challenge
+router.post('/:id/accept', auth, async (req, res) => {
+  try {
+    console.log('Accepting challenge:', req.params.id);
+    const challenge = await Challenge.findById(req.params.id);
+    if (!challenge) {
+      return res.status(404).json({ message: 'Challenge not found' });
+    }
+    
+    // Check if user is not the creator
+    if (String(challenge.createdBy) === String(req.user.id)) {
+      return res.status(400).json({ message: 'Cannot accept your own challenge' });
+    }
+    
+    // Check if user hasn't already accepted
+    if (challenge.participants.some(p => p.userId === req.user.id)) {
+      return res.status(400).json({ message: 'Already accepted this challenge' });
+    }
+    
+    challenge.participants.push({
+      userId: req.user.id,
+      joinedAt: new Date(),
+      status: 'active'
+    });
+    
+    await challenge.save();
+    console.log('Challenge accepted successfully');
+    res.json(challenge);
+  } catch (error) {
+    console.error('Error accepting challenge:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
@@ -92,8 +114,36 @@ router.get('/', auth, async (req, res) => {
         { 'participants.userId': req.user.id }
       ]
     }).sort({ createdAt: -1 });
+
+    // Get all unique creator IDs
+    const creatorIds = [...new Set(challenges.map(c => c.createdBy))];
     
-    res.json(challenges);
+    // Fetch all profiles for creators in one query
+    const profiles = await Profile.find({ userId: { $in: creatorIds } });
+    
+    // Create a map of userId to profile info for quick lookup
+    const profileMap = profiles.reduce((map, profile) => {
+      map[profile.userId] = {
+        name: profile.name || 'Unknown User',
+        profilePicture: profile.profilePicture ? `http://localhost:5000${profile.profilePicture}` : null
+      };
+      return map;
+    }, {});
+
+    // Add creator information to each challenge
+    const enhancedChallenges = challenges.map(challenge => {
+      const isCreator = String(challenge.createdBy) === String(req.user.id);
+      const creatorProfile = profileMap[challenge.createdBy] || { name: 'Unknown User', profilePicture: null };
+      
+      return {
+        ...challenge.toObject(),
+        isCreator,
+        creatorName: creatorProfile.name,
+        creatorProfilePicture: creatorProfile.profilePicture
+      };
+    });
+    
+    res.json(enhancedChallenges);
   } catch (error) {
     console.error('Error fetching challenges:', error);
     res.status(500).json({ message: 'Server error', error: error.message });

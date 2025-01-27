@@ -6,6 +6,7 @@ import AdminDashboard from './components/AdminDashboard';
 import Profile from './components/Profile';
 import Challenge from './components/Challenge';
 import AllChallenges from './components/AllChallenges';
+import OngoingChallenges from './components/OngoingChallenges';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 function MainContent() {
@@ -35,6 +36,10 @@ function MainContent() {
     setCurrentView('allChallenges');
   };
 
+  const handleNavigateToOngoing = () => {
+    setCurrentView('ongoingChallenges');
+  };
+
   const handleBackToDashboard = () => {
     setCurrentView('dashboard');
   };
@@ -49,7 +54,11 @@ function MainContent() {
     }
 
     if (currentView === 'allChallenges') {
-      return <AllChallenges onBack={handleBackToDashboard} />;
+      return <AllChallenges onBack={handleBackToDashboard} onNavigateToOngoing={handleNavigateToOngoing} />;
+    }
+
+    if (currentView === 'ongoingChallenges') {
+      return <OngoingChallenges onBack={handleBackToDashboard} />;
     }
 
     if (user.role === 'admin') {
@@ -63,6 +72,7 @@ function MainContent() {
         onNavigateToProfile={handleNavigateToProfile}
         onNavigateToChallenge={handleNavigateToChallenge}
         onNavigateToAllChallenges={handleNavigateToAllChallenges}
+        onNavigateToOngoing={handleNavigateToOngoing}
       />
     );
   };

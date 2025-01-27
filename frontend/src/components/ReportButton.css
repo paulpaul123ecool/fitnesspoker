@@ -1,0 +1,22 @@
+.report-button {
+  background-color: #fff;
+  border: 1px solid #dc3545;
+  color: #dc3545;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+}
+
+.report-button:hover {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+.report-button i {
+  font-size: 0.9rem;
+} 

@@ -4,7 +4,12 @@ import './UserDashboard.css';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
-const UserDashboard = ({ onNavigateToProfile, onNavigateToChallenge, onNavigateToAllChallenges }) => {
+const UserDashboard = ({ 
+  onNavigateToProfile, 
+  onNavigateToChallenge, 
+  onNavigateToAllChallenges,
+  onNavigateToOngoing 
+}) => {
   const { user, logout } = useAuth();
   const [challenges, setChallenges] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -67,6 +72,9 @@ const UserDashboard = ({ onNavigateToProfile, onNavigateToChallenge, onNavigateT
           </button>
           <button onClick={onNavigateToAllChallenges} className="nav-button">
             All Challenges
+          </button>
+          <button onClick={onNavigateToOngoing} className="nav-button">
+            Ongoing Challenges
           </button>
           <button onClick={logout} className="logout-button">
             Logout

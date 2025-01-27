@@ -5,7 +5,7 @@ import './AllChallenges.css';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
-const AllChallenges = ({ onBack }) => {
+const AllChallenges = ({ onBack, onNavigateToOngoing }) => {
   const { user } = useAuth();
   const [challenges, setChallenges] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -68,6 +68,45 @@ const AllChallenges = ({ onBack }) => {
     }
   };
 
+  const handleAcceptChallenge = async (challengeId) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/challenges/${challengeId}/accept`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to accept challenge');
+      }
+
+      await response.json();
+      
+      // First update the local state
+      setChallenges(prevChallenges => 
+        prevChallenges.filter(challenge => challenge._id !== challengeId)
+      );
+
+      // Then navigate after a small delay to ensure state update completes
+      setTimeout(() => {
+        if (onNavigateToOngoing) {
+          onNavigateToOngoing();
+        }
+      }, 100);
+      
+    } catch (error) {
+      console.error('Error accepting challenge:', error);
+      setError(error.message);
+    }
+  };
+
   const formatDuration = (duration, unit) => {
     return `${duration} ${unit}${duration > 1 ? 's' : ''}`;
   };
@@ -122,28 +161,28 @@ const AllChallenges = ({ onBack }) => {
                 <div className="challenge-header">
                   <h4>{challenge.title}</h4>
                   <div className="challenge-actions">
+                    <button 
+                      className="chat-button"
+                      onClick={() => handleChatClick(challenge._id)}
+                    >
+                      Chat
+                    </button>
                     {challenge.isCreator ? (
-                      <>
-                        <button 
-                          className={`chat-button ${activeChatId === challenge._id ? 'active' : ''}`}
-                          onClick={() => handleChatClick(challenge._id)}
-                        >
-                          {activeChatId === challenge._id ? 'Hide Chat' : 'Chat'}
-                        </button>
-                        <button 
-                          onClick={() => handleDeleteChallenge(challenge._id)}
-                          className="delete-button"
-                        >
-                          Delete
-                        </button>
-                      </>
-                    ) : (
                       <button 
-                        className={`chat-button ${activeChatId === challenge._id ? 'active' : ''}`}
-                        onClick={() => handleChatClick(challenge._id)}
+                        className="delete-button"
+                        onClick={() => handleDeleteChallenge(challenge._id)}
                       >
-                        {activeChatId === challenge._id ? 'Hide Chat' : 'Chat'}
+                        Delete
                       </button>
+                    ) : (
+                      !challenge.isParticipant && (
+                        <button 
+                          onClick={() => handleAcceptChallenge(challenge._id)}
+                          className="accept-button"
+                        >
+                          Accept Challenge
+                        </button>
+                      )
                     )}
                   </div>
                 </div>
@@ -161,26 +200,35 @@ const AllChallenges = ({ onBack }) => {
                   <span className="challenge-date">
                     Created: {formatDate(challenge.createdAt)}
                   </span>
-                  <span className={`challenge-creator ${challenge.isCreator ? 'is-creator' : ''}`}>
+                  <div className="challenge-creator">
                     {challenge.isCreator ? (
                       'Created by: You'
                     ) : (
                       <div className="creator-info">
-                        {challenge.creatorProfilePicture && (
-                          <img 
-                            src={challenge.creatorProfilePicture}
-                            alt={`${challenge.creatorName}'s profile`}
-                            className="creator-profile-pic"
-                            onError={(e) => {
-                              e.target.onerror = null;
-                              e.target.src = '/default-profile.png';
-                            }}
-                          />
-                        )}
-                        <span>Created by: {challenge.creatorName}</span>
+                        <div className="creator-avatar">
+                          {challenge.creatorProfilePicture ? (
+                            <img 
+                              src={challenge.creatorProfilePicture} 
+                              alt={`${challenge.creatorName}'s profile`}
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.parentElement.classList.add('no-image');
+                                e.target.parentElement.innerText = challenge.creatorName.charAt(0).toUpperCase();
+                              }}
+                            />
+                          ) : (
+                            <div className="creator-avatar no-image">
+                              {challenge.creatorName ? challenge.creatorName.charAt(0).toUpperCase() : '?'}
+                            </div>
+                          )}
+                        </div>
+                        <div className="creator-details">
+                          <span className="creator-name">{challenge.creatorName || 'Unknown User'}</span>
+                          <span className="creator-label">Creator</span>
+                        </div>
                       </div>
                     )}
-                  </span>
+                  </div>
                   {challenge.isParticipant && !challenge.isCreator && (
                     <span className="challenge-participant-status">
                       You are participating in this challenge
