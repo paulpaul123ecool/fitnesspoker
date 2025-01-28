@@ -32,14 +32,69 @@ const OngoingChallenges = ({ onBack }) => {
       }
 
       const data = await response.json();
-      console.log('Fetched challenges:', data); // Debug log
       
       // Filter only active challenges where the user is a participant or creator
       const ongoingChallenges = data.filter(challenge => 
         challenge.status === 'active' && 
         (String(challenge.createdBy) === String(user.id) || challenge.participants.some(p => String(p.userId) === String(user.id)))
       );
-      setChallenges(ongoingChallenges);
+
+      // Fetch participant details for each challenge
+      const challengesWithDetails = await Promise.all(ongoingChallenges.map(async (challenge) => {
+        // Fetch creator details if not the current user
+        if (String(challenge.createdBy) !== String(user.id)) {
+          try {
+            const creatorResponse = await fetch(`${API_BASE_URL}/api/users/${challenge.createdBy}/profile`, {
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (creatorResponse.ok) {
+              const creatorData = await creatorResponse.json();
+              challenge.creatorName = creatorData.name;
+              challenge.creatorProfilePicture = creatorData.profilePicture;
+            }
+          } catch (error) {
+            console.error('Error fetching creator details:', error);
+          }
+        } else {
+          challenge.creatorName = 'You';
+          challenge.creatorProfilePicture = user.profilePicture;
+        }
+
+        // Fetch details for each participant
+        const participantsWithDetails = await Promise.all(challenge.participants.map(async (participant) => {
+          if (String(participant.userId) === String(user.id)) {
+            return {
+              ...participant,
+              name: 'You',
+              profilePicture: user.profilePicture
+            };
+          }
+
+          try {
+            const participantResponse = await fetch(`${API_BASE_URL}/api/users/${participant.userId}/profile`, {
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (participantResponse.ok) {
+              const participantData = await participantResponse.json();
+              return {
+                ...participant,
+                name: participantData.name,
+                profilePicture: participantData.profilePicture
+              };
+            }
+          } catch (error) {
+            console.error('Error fetching participant details:', error);
+          }
+          return participant;
+        }));
+
+        return {
+          ...challenge,
+          participants: participantsWithDetails
+        };
+      }));
+
+      setChallenges(challengesWithDetails);
     } catch (error) {
       console.error('Error fetching challenges:', error);
       setError(error.message);
@@ -54,31 +109,6 @@ const OngoingChallenges = ({ onBack }) => {
       month: 'short',
       day: 'numeric'
     });
-  };
-
-  const handleDeleteChallenge = async (challengeId) => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
-
-      const response = await fetch(`${API_BASE_URL}/api/challenges/${challengeId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete challenge');
-      }
-
-      fetchOngoingChallenges();
-    } catch (error) {
-      console.error('Error deleting challenge:', error);
-      setError(error.message);
-    }
   };
 
   return (
@@ -102,57 +132,73 @@ const OngoingChallenges = ({ onBack }) => {
         ) : (
           <div className="challenges-grid">
             {challenges.map(challenge => (
-              <div key={challenge._id} className="challenge-card">
+              <div key={challenge._id} className="ongoing-challenge-card">
                 <div className="challenge-header">
-                  <h3>{challenge.name}</h3>
-                  <div className="challenge-actions">
-                    {challenge.isCreator && (
-                      <button 
-                        className="delete-button"
-                        onClick={() => handleDeleteChallenge(challenge._id)}
-                      >
-                        Delete
-                      </button>
+                  <h2 className="challenge-title">{challenge.name}</h2>
+                </div>
+                
+                <p className="challenge-description">{challenge.description}</p>
+                
+                <div className="bet-info">
+                  <span className="bet-amount">Bet: ${challenge.originalBet}</span>
+                  <span className="created-date">Created: {formatDate(challenge.createdAt)}</span>
+                </div>
+
+                <div className="creator-section">
+                  <h3 className="section-title">Creator:</h3>
+                  <div className="creator-profile">
+                    {challenge.creatorProfilePicture ? (
+                      <img 
+                        src={challenge.creatorProfilePicture}
+                        alt="Creator profile"
+                        className="profile-pic"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = '/default-profile.png';
+                        }}
+                      />
+                    ) : (
+                      <div className="profile-pic-placeholder">
+                        {challenge.creatorName?.charAt(0) || '?'}
+                      </div>
                     )}
+                    <span className="creator-name">
+                      {String(challenge.createdBy) === String(user.id) ? 'You' : challenge.creatorName || 'Unknown User'}
+                    </span>
                   </div>
                 </div>
-                <p className="challenge-description">{challenge.description}</p>
-                <div className="challenge-info">
-                  <div className="creator-info">
-                    <span className="label">Created by:</span>
-                    <div className="value">
-                      <span>{challenge.isCreator ? 'You' : challenge.creatorName || 'Unknown User'}</span>
-                      {challenge.creatorProfilePicture && (
-                        <img 
-                          src={challenge.creatorProfilePicture}
-                          alt={`${challenge.creatorName}'s profile`}
-                          className="creator-profile-pic"
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = '/default-profile.png';
-                          }}
-                        />
-                      )}
-                    </div>
-                  </div>
-                  <div className="participants-info">
-                    <h4>Participants:</h4>
-                    <ul>
-                      {challenge.participants.map(participant => (
-                        <li key={`${participant.userId}-${participant.joinedAt}`}>
-                          <span>{String(participant.userId) === String(user.id) ? 'You' : 'Other Participant'}</span>
-                          <span>Joined: {formatDate(participant.joinedAt)}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div className="challenge-details">
-                    <span className="challenge-bet">
-                      Bet Amount: ${challenge.originalBet}
-                    </span>
-                    <span className="challenge-status">
-                      Status: {challenge.status}
-                    </span>
+
+                <div className="participants-section">
+                  <h3 className="section-title">Participants:</h3>
+                  <div className="participants-list">
+                    {challenge.participants.map(participant => (
+                      <div 
+                        key={`${participant.userId}-${participant.joinedAt}`} 
+                        className="participant-item"
+                      >
+                        {participant.profilePicture ? (
+                          <img 
+                            src={participant.profilePicture}
+                            alt={`${participant.name}'s profile`}
+                            className="profile-pic"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = '/default-profile.png';
+                            }}
+                          />
+                        ) : (
+                          <div className="profile-pic-placeholder">
+                            {participant.name?.charAt(0) || '?'}
+                          </div>
+                        )}
+                        <div className="participant-info">
+                          <span className="participant-name">
+                            {String(participant.userId) === String(user.id) ? 'You' : participant.name}
+                          </span>
+                          <span className="join-date">Joined: {formatDate(participant.joinedAt)}</span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>

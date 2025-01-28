@@ -201,7 +201,7 @@ router.put('/:id', auth, async (req, res) => {
   }
 });
 
-// Delete a specific challenge (only by creator)
+// Delete a specific challenge (by creator or admin)
 router.delete('/:id', auth, async (req, res) => {
   try {
     const challenge = await Challenge.findById(req.params.id);
@@ -209,7 +209,11 @@ router.delete('/:id', auth, async (req, res) => {
       return res.status(404).json({ message: 'Challenge not found' });
     }
     
-    if (String(challenge.createdBy) !== String(req.user.id)) {
+    // Allow both the creator and admin to delete
+    const isCreator = String(challenge.createdBy) === String(req.user.id);
+    const isAdmin = req.user.role === 'admin';
+    
+    if (!isCreator && !isAdmin) {
       return res.status(403).json({ message: 'Not authorized to delete this challenge' });
     }
     
@@ -265,6 +269,59 @@ router.post('/:id/leave', auth, async (req, res) => {
     res.json(challenge);
   } catch (error) {
     console.error('Error leaving challenge:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Get all ongoing challenges for admin
+router.get('/admin/ongoing', auth, async (req, res) => {
+  try {
+    // Check if user is admin
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Not authorized' });
+    }
+
+    // Find all active challenges
+    const challenges = await Challenge.find({
+      status: 'active'
+    }).sort({ createdAt: -1 });
+    
+    // Get all unique user IDs (creators and participants)
+    const userIds = new Set();
+    challenges.forEach(challenge => {
+      userIds.add(challenge.createdBy);
+      challenge.participants.forEach(participant => userIds.add(participant.userId));
+    });
+    
+    // Fetch all profiles in one query
+    const profiles = await Profile.find({ userId: { $in: [...userIds] } });
+    const profileMap = profiles.reduce((map, profile) => {
+      map[profile.userId] = {
+        name: profile.name || 'Unknown User',
+        profilePicture: profile.profilePicture ? `http://localhost:5000${profile.profilePicture}` : null
+      };
+      return map;
+    }, {});
+    
+    // Add user information to each challenge
+    const enhancedChallenges = challenges.map(challenge => {
+      const creatorProfile = profileMap[challenge.createdBy];
+      const enhancedParticipants = challenge.participants.map(participant => ({
+        ...participant.toObject(),
+        profile: profileMap[participant.userId] || { name: 'Unknown User', profilePicture: null }
+      }));
+      
+      return {
+        ...challenge.toObject(),
+        creatorName: creatorProfile ? creatorProfile.name : 'Unknown User',
+        creatorProfilePicture: creatorProfile ? creatorProfile.profilePicture : null,
+        participants: enhancedParticipants
+      };
+    });
+    
+    res.json(enhancedChallenges);
+  } catch (error) {
+    console.error('Error fetching admin ongoing challenges:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });

@@ -20,10 +20,15 @@ export const AuthProvider = ({ children }) => {
       
       if (response.ok) {
         console.log('Login response:', data);
-        setUser(data.user);
+        const userToStore = {
+          id: data.user.id,
+          email: data.user.email,
+          role: data.user.role
+        };
+        setUser(userToStore);
         setToken(data.token);
         localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('user', JSON.stringify(userToStore));
         return { success: true };
       } else {
         throw new Error(data.error);

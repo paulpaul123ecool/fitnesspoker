@@ -2,12 +2,14 @@
   min-height: 100vh;
   background-color: #282c34;
   color: white;
+  padding-bottom: 2rem;
 }
 
 .dashboard-header {
   padding: 2rem;
   text-align: center;
   border-bottom: 1px solid #61dafb;
+  margin-bottom: 2rem;
 }
 
 .dashboard-header h1 {
@@ -17,7 +19,7 @@
 }
 
 .dashboard-content {
-  padding: 2rem;
+  padding: 0 2rem;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -31,96 +33,190 @@
 .admin-section h2 {
   color: #61dafb;
   margin-top: 0;
+  margin-bottom: 2rem;
 }
 
-.admin-features {
-  list-style-type: none;
-  padding: 0;
-  margin: 2rem 0;
+.challenges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
 }
 
-.admin-features li {
-  margin: 0.5rem 0;
-  padding-left: 1.5rem;
-  position: relative;
+.challenge-card {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.admin-features li:before {
-  content: "•";
-  color: #61dafb;
-  position: absolute;
-  left: 0;
+.challenge-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
-.admin-actions {
-  margin-top: 2rem;
-}
-
-.action-buttons {
+.challenge-header {
   display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
 }
 
-.admin-button {
+.challenge-header h3 {
+  margin: 0;
+  color: #61dafb;
+  font-size: 1.4rem;
+}
+
+.challenge-info {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.challenge-description {
+  margin: 1rem 0;
+  line-height: 1.6;
+}
+
+.challenge-details {
+  display: flex;
+  justify-content: space-between;
+  margin: 1rem 0;
+  padding: 1rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.challenge-bet {
+  color: #2ecc71;
+  font-weight: bold;
+}
+
+.creator-section, .participants-section {
+  margin-top: 1.5rem;
+}
+
+.creator-section h4, .participants-section h4 {
+  color: #61dafb;
+  margin-bottom: 1rem;
+}
+
+.creator-info, .participant-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.8rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.profile-pic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-pic-placeholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   background-color: #61dafb;
   color: #282c34;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.participant-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.participant-name {
+  font-weight: bold;
+}
+
+.join-date {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.delete-button {
+  background-color: rgba(231, 76, 60, 0.2);
+  color: #e74c3c;
   border: none;
-  border-radius: 4px;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  font-weight: 500;
+  transition: all 0.3s ease;
 }
 
-.admin-button:hover {
-  background-color: #4fa8d5;
+.delete-button:hover {
+  background-color: rgba(231, 76, 60, 0.3);
+  transform: translateY(-2px);
 }
 
-.admin-button:disabled {
-  background-color: #4fa8d5;
+.delete-button:disabled {
+  opacity: 0.5;
   cursor: not-allowed;
-  opacity: 0.7;
-}
-
-.cleanup-button {
-  background-color: #dc3545;
-  color: white;
-}
-
-.cleanup-button:hover {
-  background-color: #c82333;
 }
 
 .message {
   margin-top: 1rem;
   padding: 1rem;
-  border-radius: 4px;
-  font-weight: 500;
+  border-radius: 6px;
+  text-align: center;
 }
 
 .message.error {
-  background-color: rgba(220, 53, 69, 0.1);
-  color: #dc3545;
+  background-color: rgba(231, 76, 60, 0.2);
+  color: #e74c3c;
 }
 
 .message.success {
-  background-color: rgba(40, 167, 69, 0.1);
-  color: #28a745;
+  background-color: rgba(46, 204, 113, 0.2);
+  color: #2ecc71;
+}
+
+.no-challenges {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  padding: 2rem;
+  font-style: italic;
 }
 
 .logout-button {
-  background-color: #6c757d;
-  color: white;
+  background-color: rgba(231, 76, 60, 0.2);
+  color: #e74c3c;
   border: none;
-  border-radius: 4px;
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.2s;
-  margin-top: 1rem;
+  transition: all 0.3s ease;
 }
 
 .logout-button:hover {
-  background-color: #5a6268;
+  background-color: rgba(231, 76, 60, 0.3);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .challenges-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .challenge-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .challenge-details {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 } 

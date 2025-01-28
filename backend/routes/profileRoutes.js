@@ -4,6 +4,7 @@ const auth = require('../middleware/auth');
 const multer = require('multer');
 const path = require('path');
 const mongoose = require('mongoose');
+const Profile = require('../models/Profile');
 
 // Configure multer for file upload
 const storage = multer.diskStorage({
@@ -43,21 +44,23 @@ const ProfileSchema = new mongoose.Schema({
   age: { type: Number, required: true },
   fitnessExperience: { type: String, required: true },
   profilePicture: { type: String },
+  showcasePicture1: { type: String },
+  showcasePicture2: { type: String },
   updatedAt: { type: Date, default: Date.now }
 });
 
-let Profile;
+let ProfileModel;
 try {
-  Profile = mongoose.model('Profile');
+  ProfileModel = mongoose.model('Profile');
 } catch {
-  Profile = mongoose.model('Profile', ProfileSchema);
+  ProfileModel = mongoose.model('Profile', ProfileSchema);
 }
 
 // Get user profile
 router.get('/', auth, async (req, res) => {
   try {
     console.log('GET /api/profile - Fetching profile for user:', req.user.id);
-    const profile = await Profile.findOne({ userId: req.user.id });
+    const profile = await ProfileModel.findOne({ userId: req.user.id });
     
     if (!profile) {
       console.log('No profile found for user:', req.user.id);
@@ -73,11 +76,15 @@ router.get('/', auth, async (req, res) => {
 });
 
 // Create or update profile
-router.post('/', auth, upload.single('profilePicture'), async (req, res) => {
+router.post('/', auth, upload.fields([
+  { name: 'profilePicture', maxCount: 1 },
+  { name: 'showcasePicture1', maxCount: 1 },
+  { name: 'showcasePicture2', maxCount: 1 }
+]), async (req, res) => {
   try {
     console.log('POST /api/profile - Updating profile for user:', req.user.id);
     console.log('Request body:', req.body);
-    console.log('File:', req.file);
+    console.log('Files:', req.files);
 
     if (!req.user || !req.user.id) {
       throw new Error('User not authenticated properly');
@@ -102,13 +109,22 @@ router.post('/', auth, upload.single('profilePicture'), async (req, res) => {
       updatedAt: new Date()
     };
 
-    if (req.file) {
-      profileData.profilePicture = `/uploads/profiles/${req.file.filename}`;
+    // Handle pictures
+    if (req.files) {
+      if (req.files.profilePicture) {
+        profileData.profilePicture = `/uploads/profiles/${req.files.profilePicture[0].filename}`;
+      }
+      if (req.files.showcasePicture1) {
+        profileData.showcasePicture1 = `/uploads/profiles/${req.files.showcasePicture1[0].filename}`;
+      }
+      if (req.files.showcasePicture2) {
+        profileData.showcasePicture2 = `/uploads/profiles/${req.files.showcasePicture2[0].filename}`;
+      }
     }
 
     console.log('Profile data to save:', profileData);
 
-    const profile = await Profile.findOneAndUpdate(
+    const profile = await ProfileModel.findOneAndUpdate(
       { userId: req.user.id },
       profileData,
       { new: true, upsert: true, runValidators: true }

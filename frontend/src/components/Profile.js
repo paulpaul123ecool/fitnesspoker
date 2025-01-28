@@ -10,9 +10,15 @@ const Profile = ({ onBack }) => {
     name: '',
     age: '',
     fitnessExperience: '',
-    profilePicture: null
+    profilePicture: null,
+    showcasePicture1: null,
+    showcasePicture2: null
   });
-  const [previewUrl, setPreviewUrl] = useState(null);
+  const [previewUrls, setPreviewUrls] = useState({
+    profile: null,
+    showcase1: null,
+    showcase2: null
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
@@ -51,9 +57,13 @@ const Profile = ({ onBack }) => {
         age: data.age || '',
         fitnessExperience: data.fitnessExperience || ''
       }));
-      if (data.profilePicture) {
-        setPreviewUrl(`${API_BASE_URL}${data.profilePicture}`);
-      }
+      
+      // Set preview URLs for all pictures if they exist
+      setPreviewUrls({
+        profile: data.profilePicture ? `${API_BASE_URL}${data.profilePicture}` : null,
+        showcase1: data.showcasePicture1 ? `${API_BASE_URL}${data.showcasePicture1}` : null,
+        showcase2: data.showcasePicture2 ? `${API_BASE_URL}${data.showcasePicture2}` : null
+      });
     } catch (error) {
       console.error('Error fetching profile:', error);
       setError(error.message);
@@ -70,7 +80,7 @@ const Profile = ({ onBack }) => {
     }));
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = (e, imageType) => {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
@@ -82,13 +92,20 @@ const Profile = ({ onBack }) => {
         return;
       }
 
+      const fieldName = imageType === 'profile' ? 'profilePicture' : 
+                       imageType === 'showcase1' ? 'showcasePicture1' : 'showcasePicture2';
+
       setProfile(prev => ({
         ...prev,
-        profilePicture: file
+        [fieldName]: file
       }));
+
       const reader = new FileReader();
       reader.onloadend = () => {
-        setPreviewUrl(reader.result);
+        setPreviewUrls(prev => ({
+          ...prev,
+          [imageType]: reader.result
+        }));
       };
       reader.readAsDataURL(file);
     }
@@ -111,6 +128,12 @@ const Profile = ({ onBack }) => {
       formData.append('fitnessExperience', profile.fitnessExperience);
       if (profile.profilePicture) {
         formData.append('profilePicture', profile.profilePicture);
+      }
+      if (profile.showcasePicture1) {
+        formData.append('showcasePicture1', profile.showcasePicture1);
+      }
+      if (profile.showcasePicture2) {
+        formData.append('showcasePicture2', profile.showcasePicture2);
       }
 
       const response = await fetch(`${API_BASE_URL}/api/profile`, {
@@ -193,20 +216,59 @@ const Profile = ({ onBack }) => {
           </select>
         </div>
 
-        <div className="form-group">
-          <label htmlFor="profilePicture">Profile Picture</label>
-          <input
-            type="file"
-            id="profilePicture"
-            name="profilePicture"
-            onChange={handleImageChange}
-            accept="image/jpeg,image/png"
-          />
-          {previewUrl && (
-            <div className="image-preview">
-              <img src={previewUrl} alt="Profile preview" />
+        <div className="profile-picture-section">
+          <div className="form-group">
+            <label htmlFor="profilePicture">Profile Picture</label>
+            <input
+              type="file"
+              id="profilePicture"
+              name="profilePicture"
+              onChange={(e) => handleImageChange(e, 'profile')}
+              accept="image/jpeg,image/png"
+            />
+            {previewUrls.profile && (
+              <div className="image-preview profile-preview">
+                <img src={previewUrls.profile} alt="Profile preview" />
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="showcase-pictures-section">
+          <h3>Showcase Pictures</h3>
+          <div className="pictures-container">
+            <div className="form-group">
+              <label htmlFor="showcasePicture1">Showcase Picture 1</label>
+              <input
+                type="file"
+                id="showcasePicture1"
+                name="showcasePicture1"
+                onChange={(e) => handleImageChange(e, 'showcase1')}
+                accept="image/jpeg,image/png"
+              />
+              {previewUrls.showcase1 && (
+                <div className="image-preview">
+                  <img src={previewUrls.showcase1} alt="Showcase preview 1" />
+                </div>
+              )}
             </div>
-          )}
+
+            <div className="form-group">
+              <label htmlFor="showcasePicture2">Showcase Picture 2</label>
+              <input
+                type="file"
+                id="showcasePicture2"
+                name="showcasePicture2"
+                onChange={(e) => handleImageChange(e, 'showcase2')}
+                accept="image/jpeg,image/png"
+              />
+              {previewUrls.showcase2 && (
+                <div className="image-preview">
+                  <img src={previewUrls.showcase2} alt="Showcase preview 2" />
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="button-group">
@@ -222,6 +284,6 @@ const Profile = ({ onBack }) => {
       </form>
     </div>
   );
-};
+}
 
 export default Profile; 
