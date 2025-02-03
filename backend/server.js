@@ -19,7 +19,8 @@ require('./models/Chat');
 const authRoutes = require('./routes/authRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const challengeRoutes = require('./routes/challengeRoutes');
-const chatRoutes = require('./routes/chat');
+const chatRoutes = require('./routes/chatRoutes');
+const userRoutes = require('./routes/userRoutes');
 const auth = require('./middleware/auth');
 
 const app = express();
@@ -119,6 +120,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/challenges', challengeRoutes);
 app.use('/api/chats', chatRoutes);
+app.use('/api', userRoutes);
 
 // Endpoint pentru verificarea rolului
 app.get('/api/auth/me', auth, (req, res) => {

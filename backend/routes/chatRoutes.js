@@ -1,37 +1,46 @@
 const express = require('express');
 const router = express.Router();
-const ChatMessage = require('../models/Chat');
+const Chat = require('../models/Chat');
 const auth = require('../middleware/auth');
 
-// Get chat messages for a challenge
-router.get('/:challengeId', auth, async (req, res) => {
-    try {
-        const messages = await ChatMessage.find({ challengeId: req.params.challengeId })
-            .sort({ timestamp: 1 })
-            .populate('senderId', 'name profilePicture');
-        res.json(messages);
-    } catch (error) {
-        res.status(500).json({ message: 'Error fetching messages' });
-    }
+// Get chat messages between current user and another user
+router.get('/:userId/messages', auth, async (req, res) => {
+  try {
+    const messages = await Chat.find({
+      $or: [
+        { senderId: req.user.id, receiverId: req.params.userId },
+        { senderId: req.params.userId, receiverId: req.user.id }
+      ]
+    }).sort({ timestamp: 1 });
+
+    res.json(messages);
+  } catch (error) {
+    console.error('Error fetching messages:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 // Send a new message
-router.post('/:challengeId', auth, async (req, res) => {
-    try {
-        const newMessage = new ChatMessage({
-            challengeId: req.params.challengeId,
-            senderId: req.user.id,
-            message: req.body.message
-        });
-        await newMessage.save();
-        
-        const populatedMessage = await ChatMessage.findById(newMessage._id)
-            .populate('senderId', 'name profilePicture');
-        
-        res.status(201).json(populatedMessage);
-    } catch (error) {
-        res.status(500).json({ message: 'Error sending message' });
-    }
+router.post('/:userId/messages', auth, async (req, res) => {
+  try {
+    const newMessage = new Chat({
+      senderId: req.user.id,
+      receiverId: req.params.userId,
+      content: req.body.content,
+      timestamp: new Date()
+    });
+
+    await newMessage.save();
+
+    // Emit the message through Socket.IO
+    const io = req.app.get('io');
+    io.to(req.params.userId).emit('newMessage', newMessage);
+
+    res.json(newMessage);
+  } catch (error) {
+    console.error('Error sending message:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 module.exports = router; 

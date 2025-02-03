@@ -1,27 +1,32 @@
 const mongoose = require('mongoose');
 
-const chatMessageSchema = new mongoose.Schema({
-    challengeId: {
-        type: String,
-        required: true
-    },
+const chatSchema = new mongoose.Schema({
     senderId: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
         required: true
     },
-    message: {
+    receiverId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
+    content: {
         type: String,
         required: true
     },
     timestamp: {
         type: Date,
         default: Date.now
+    },
+    read: {
+        type: Boolean,
+        default: false
     }
-}, {
-    timestamps: true
 });
 
-// Index for efficient querying
-chatMessageSchema.index({ challengeId: 1, createdAt: 1 });
+// Index for faster queries
+chatSchema.index({ senderId: 1, receiverId: 1 });
+chatSchema.index({ timestamp: -1 });
 
-module.exports = mongoose.model('ChatMessage', chatMessageSchema); 
+module.exports = mongoose.model('Chat', chatSchema); 

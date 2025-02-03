@@ -8,7 +8,8 @@ const UserDashboard = ({
   onNavigateToProfile, 
   onNavigateToChallenge, 
   onNavigateToAllChallenges,
-  onNavigateToOngoing 
+  onNavigateToOngoing,
+  onNavigateToChats 
 }) => {
   const { user, logout } = useAuth();
   const [challenges, setChallenges] = useState([]);
@@ -75,6 +76,9 @@ const UserDashboard = ({
           </button>
           <button onClick={onNavigateToOngoing} className="nav-button">
             Ongoing Challenges
+          </button>
+          <button onClick={onNavigateToChats} className="nav-button">
+            Chats
           </button>
           <button onClick={logout} className="logout-button">
             Logout

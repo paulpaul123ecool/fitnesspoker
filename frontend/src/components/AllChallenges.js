@@ -13,6 +13,7 @@ const AllChallenges = ({ onBack, onNavigateToOngoing }) => {
   const [error, setError] = useState(null);
   const [activeChatId, setActiveChatId] = useState(null);
   const [selectedProfile, setSelectedProfile] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     fetchAllChallenges();
@@ -185,28 +186,32 @@ const AllChallenges = ({ onBack, onNavigateToOngoing }) => {
                 <div className="challenge-header">
                   <h4>{challenge.title}</h4>
                   <div className="challenge-actions">
-                    <button 
-                      className="chat-button"
-                      onClick={() => handleChatClick(challenge._id)}
-                    >
-                      Chat
-                    </button>
-                    {challenge.isCreator ? (
-                      <button 
-                        className="delete-button"
+                    {String(challenge.createdBy) === String(user.id) ? (
+                      <button
+                        className="action-button cancel"
                         onClick={() => handleDeleteChallenge(challenge._id)}
+                        disabled={isLoading}
                       >
-                        Delete
+                        Delete Challenge
                       </button>
                     ) : (
-                      !challenge.isParticipant && (
-                        <button 
-                          onClick={() => handleAcceptChallenge(challenge._id)}
-                          className="accept-button"
+                      <>
+                        <button
+                          className="action-button chat"
+                          onClick={() => handleChatClick(challenge._id)}
                         >
-                          Accept Challenge
+                          {activeChatId === challenge._id ? 'Close Chat' : 'Open Chat'}
                         </button>
-                      )
+                        {!challenge.isParticipant && (
+                          <button
+                            className="action-button"
+                            onClick={() => handleAcceptChallenge(challenge._id)}
+                            disabled={isLoading}
+                          >
+                            Accept Challenge
+                          </button>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>

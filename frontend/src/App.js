@@ -7,6 +7,7 @@ import Profile from './components/Profile';
 import Challenge from './components/Challenge';
 import AllChallenges from './components/AllChallenges';
 import OngoingChallenges from './components/OngoingChallenges';
+import Chats from './components/Chats';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 function MainContent() {
@@ -40,6 +41,10 @@ function MainContent() {
     setCurrentView('ongoingChallenges');
   };
 
+  const handleNavigateToChats = () => {
+    setCurrentView('chats');
+  };
+
   const handleBackToDashboard = () => {
     setCurrentView('dashboard');
   };
@@ -61,6 +66,10 @@ function MainContent() {
       return <OngoingChallenges onBack={handleBackToDashboard} />;
     }
 
+    if (currentView === 'chats') {
+      return <Chats onBack={handleBackToDashboard} />;
+    }
+
     if (user.role === 'admin') {
       console.log('Rendering AdminDashboard');
       return <AdminDashboard />;
@@ -73,6 +82,7 @@ function MainContent() {
         onNavigateToChallenge={handleNavigateToChallenge}
         onNavigateToAllChallenges={handleNavigateToAllChallenges}
         onNavigateToOngoing={handleNavigateToOngoing}
+        onNavigateToChats={handleNavigateToChats}
       />
     );
   };
