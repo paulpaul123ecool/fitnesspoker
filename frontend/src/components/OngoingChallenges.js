@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import ProfilePopup from './ProfilePopup';
 import './OngoingChallenges.css';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
@@ -9,6 +10,7 @@ const OngoingChallenges = ({ onBack }) => {
   const [challenges, setChallenges] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedProfile, setSelectedProfile] = useState(null);
 
   useEffect(() => {
     fetchOngoingChallenges();
@@ -44,20 +46,20 @@ const OngoingChallenges = ({ onBack }) => {
         // Fetch creator details if not the current user
         if (String(challenge.createdBy) !== String(user.id)) {
           try {
-            const creatorResponse = await fetch(`${API_BASE_URL}/api/users/${challenge.createdBy}/profile`, {
+            const creatorResponse = await fetch(`${API_BASE_URL}/api/profile/${challenge.createdBy}/profile`, {
               headers: { 'Authorization': `Bearer ${token}` }
             });
             if (creatorResponse.ok) {
               const creatorData = await creatorResponse.json();
               challenge.creatorName = creatorData.name;
-              challenge.creatorProfilePicture = creatorData.profilePicture;
+              challenge.creatorProfilePicture = creatorData.profilePicture ? `${API_BASE_URL}${creatorData.profilePicture}` : null;
             }
           } catch (error) {
             console.error('Error fetching creator details:', error);
           }
         } else {
           challenge.creatorName = 'You';
-          challenge.creatorProfilePicture = user.profilePicture;
+          challenge.creatorProfilePicture = user.profilePicture ? `${API_BASE_URL}${user.profilePicture}` : null;
         }
 
         // Fetch details for each participant
@@ -66,12 +68,12 @@ const OngoingChallenges = ({ onBack }) => {
             return {
               ...participant,
               name: 'You',
-              profilePicture: user.profilePicture
+              profilePicture: user.profilePicture ? `${API_BASE_URL}${user.profilePicture}` : null
             };
           }
 
           try {
-            const participantResponse = await fetch(`${API_BASE_URL}/api/users/${participant.userId}/profile`, {
+            const participantResponse = await fetch(`${API_BASE_URL}/api/profile/${participant.userId}/profile`, {
               headers: { 'Authorization': `Bearer ${token}` }
             });
             if (participantResponse.ok) {
@@ -79,7 +81,7 @@ const OngoingChallenges = ({ onBack }) => {
               return {
                 ...participant,
                 name: participantData.name,
-                profilePicture: participantData.profilePicture
+                profilePicture: participantData.profilePicture ? `${API_BASE_URL}${participantData.profilePicture}` : null
               };
             }
           } catch (error) {
@@ -100,6 +102,28 @@ const OngoingChallenges = ({ onBack }) => {
       setError(error.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleProfileClick = async (userId) => {
+    if (String(userId) === String(user.id)) return; // Don't show popup for current user
+    
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}/api/profile/${userId}/profile`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        const profileData = await response.json();
+        setSelectedProfile(profileData);
+      } else {
+        console.error('Failed to fetch profile');
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
     }
   };
 
@@ -154,7 +178,9 @@ const OngoingChallenges = ({ onBack }) => {
                         className="profile-pic"
                         onError={(e) => {
                           e.target.onerror = null;
-                          e.target.src = '/default-profile.png';
+                          e.target.style.display = 'none';
+                          e.target.parentElement.classList.add('no-image');
+                          e.target.parentElement.innerText = challenge.creatorName?.charAt(0) || '?';
                         }}
                       />
                     ) : (
@@ -162,7 +188,10 @@ const OngoingChallenges = ({ onBack }) => {
                         {challenge.creatorName?.charAt(0) || '?'}
                       </div>
                     )}
-                    <span className="creator-name">
+                    <span 
+                      className={`creator-name ${String(challenge.createdBy) !== String(user.id) ? 'clickable' : ''}`}
+                      onClick={() => handleProfileClick(challenge.createdBy)}
+                    >
                       {String(challenge.createdBy) === String(user.id) ? 'You' : challenge.creatorName || 'Unknown User'}
                     </span>
                   </div>
@@ -183,7 +212,9 @@ const OngoingChallenges = ({ onBack }) => {
                             className="profile-pic"
                             onError={(e) => {
                               e.target.onerror = null;
-                              e.target.src = '/default-profile.png';
+                              e.target.style.display = 'none';
+                              e.target.parentElement.classList.add('no-image');
+                              e.target.parentElement.innerText = participant.name?.charAt(0) || '?';
                             }}
                           />
                         ) : (
@@ -192,7 +223,10 @@ const OngoingChallenges = ({ onBack }) => {
                           </div>
                         )}
                         <div className="participant-info">
-                          <span className="participant-name">
+                          <span 
+                            className={`participant-name ${String(participant.userId) !== String(user.id) ? 'clickable' : ''}`}
+                            onClick={() => handleProfileClick(participant.userId)}
+                          >
                             {String(participant.userId) === String(user.id) ? 'You' : participant.name}
                           </span>
                           <span className="join-date">Joined: {formatDate(participant.joinedAt)}</span>
@@ -206,6 +240,13 @@ const OngoingChallenges = ({ onBack }) => {
           </div>
         )}
       </div>
+
+      {selectedProfile && (
+        <ProfilePopup
+          profile={selectedProfile}
+          onClose={() => setSelectedProfile(null)}
+        />
+      )}
     </div>
   );
 };

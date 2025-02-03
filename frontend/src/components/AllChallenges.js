@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Chat from './Chat';
+import ProfilePopup from './ProfilePopup';
 import './AllChallenges.css';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
@@ -11,6 +12,7 @@ const AllChallenges = ({ onBack, onNavigateToOngoing }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeChatId, setActiveChatId] = useState(null);
+  const [selectedProfile, setSelectedProfile] = useState(null);
 
   useEffect(() => {
     fetchAllChallenges();
@@ -136,6 +138,28 @@ const AllChallenges = ({ onBack, onNavigateToOngoing }) => {
     }
   };
 
+  const handleProfileClick = async (userId) => {
+    if (String(userId) === String(user.id)) return; // Don't show popup for current user
+    
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}/api/profile/${userId}/profile`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        const profileData = await response.json();
+        setSelectedProfile(profileData);
+      } else {
+        console.error('Failed to fetch profile');
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    }
+  };
+
   return (
     <div className="all-challenges">
       <header className="all-challenges-header">
@@ -222,7 +246,10 @@ const AllChallenges = ({ onBack, onNavigateToOngoing }) => {
                             </div>
                           )}
                         </div>
-                        <div className="creator-details">
+                        <div 
+                          className="creator-details clickable"
+                          onClick={() => handleProfileClick(challenge.createdBy)}
+                        >
                           <span className="creator-name">{challenge.creatorName || 'Unknown User'}</span>
                           <span className="creator-label">Creator</span>
                         </div>
@@ -248,6 +275,13 @@ const AllChallenges = ({ onBack, onNavigateToOngoing }) => {
           </div>
         )}
       </div>
+
+      {selectedProfile && (
+        <ProfilePopup
+          profile={selectedProfile}
+          onClose={() => setSelectedProfile(null)}
+        />
+      )}
     </div>
   );
 };

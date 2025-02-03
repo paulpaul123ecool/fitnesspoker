@@ -49,14 +49,34 @@ app.use((req, res, next) => {
   next();
 });
 
-// Serve uploaded files
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Serve uploaded files with proper CORS and caching headers
+app.use('/uploads', (req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+  next();
+}, express.static(path.join(__dirname, 'uploads')));
 
 // Create uploads directory if it doesn't exist
 const fs = require('fs');
-const uploadDir = path.join(__dirname, 'uploads', 'profiles');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+const uploadDirs = [
+  path.join(__dirname, 'uploads'),
+  path.join(__dirname, 'uploads', 'profiles')
+];
+
+uploadDirs.forEach(dir => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+    console.log(`Created directory: ${dir}`);
+  }
+});
+
+// Set proper permissions for uploads directory
+try {
+  fs.chmodSync(path.join(__dirname, 'uploads'), '755');
+  fs.chmodSync(path.join(__dirname, 'uploads', 'profiles'), '755');
+  console.log('Set permissions for upload directories');
+} catch (error) {
+  console.error('Error setting directory permissions:', error);
 }
 
 // Make io accessible to routes
