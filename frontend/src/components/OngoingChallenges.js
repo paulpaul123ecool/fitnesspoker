@@ -43,32 +43,14 @@ const OngoingChallenges = ({ onBack }) => {
 
       // Fetch participant details for each challenge
       const challengesWithDetails = await Promise.all(ongoingChallenges.map(async (challenge) => {
-        // Fetch creator details if not the current user
-        if (String(challenge.createdBy) !== String(user.id)) {
-          try {
-            const creatorResponse = await fetch(`${API_BASE_URL}/api/profile/${challenge.createdBy}/profile`, {
-              headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (creatorResponse.ok) {
-              const creatorData = await creatorResponse.json();
-              challenge.creatorName = creatorData.name;
-              challenge.creatorProfilePicture = creatorData.profilePicture ? `${API_BASE_URL}${creatorData.profilePicture}` : null;
-            }
-          } catch (error) {
-            console.error('Error fetching creator details:', error);
-          }
-        } else {
-          challenge.creatorName = 'You';
-          challenge.creatorProfilePicture = user.profilePicture ? `${API_BASE_URL}${user.profilePicture}` : null;
-        }
-
         // Fetch details for each participant
         const participantsWithDetails = await Promise.all(challenge.participants.map(async (participant) => {
           if (String(participant.userId) === String(user.id)) {
             return {
               ...participant,
               name: 'You',
-              profilePicture: user.profilePicture ? `${API_BASE_URL}${user.profilePicture}` : null
+              profilePicture: user.profilePicture ? `${API_BASE_URL}${user.profilePicture}` : null,
+              isVerified: false // Default for current user
             };
           }
 
@@ -81,7 +63,8 @@ const OngoingChallenges = ({ onBack }) => {
               return {
                 ...participant,
                 name: participantData.name,
-                profilePicture: participantData.profilePicture ? `${API_BASE_URL}${participantData.profilePicture}` : null
+                profilePicture: participantData.profilePicture ? `${API_BASE_URL}${participantData.profilePicture}` : null,
+                isVerified: participantData.isVerified || false
               };
             }
           } catch (error) {
@@ -89,6 +72,27 @@ const OngoingChallenges = ({ onBack }) => {
           }
           return participant;
         }));
+
+        // Also fetch creator verification status if not current user
+        if (String(challenge.createdBy) !== String(user.id)) {
+          try {
+            const creatorResponse = await fetch(`${API_BASE_URL}/api/profile/${challenge.createdBy}/profile`, {
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (creatorResponse.ok) {
+              const creatorData = await creatorResponse.json();
+              challenge.creatorName = creatorData.name;
+              challenge.creatorProfilePicture = creatorData.profilePicture ? `${API_BASE_URL}${creatorData.profilePicture}` : null;
+              challenge.creatorIsVerified = creatorData.isVerified || false;
+            }
+          } catch (error) {
+            console.error('Error fetching creator details:', error);
+          }
+        } else {
+          challenge.creatorName = 'You';
+          challenge.creatorProfilePicture = user.profilePicture ? `${API_BASE_URL}${user.profilePicture}` : null;
+          challenge.creatorIsVerified = false; // Default for current user
+        }
 
         return {
           ...challenge,
@@ -171,23 +175,26 @@ const OngoingChallenges = ({ onBack }) => {
                 <div className="creator-section">
                   <h3 className="section-title">Creator:</h3>
                   <div className="creator-profile">
-                    {challenge.creatorProfilePicture ? (
-                      <img 
-                        src={challenge.creatorProfilePicture}
-                        alt="Creator profile"
-                        className="profile-pic"
-                        onError={(e) => {
-                          e.target.onerror = null;
-                          e.target.style.display = 'none';
-                          e.target.parentElement.classList.add('no-image');
-                          e.target.parentElement.innerText = challenge.creatorName?.charAt(0) || '?';
-                        }}
-                      />
-                    ) : (
-                      <div className="profile-pic-placeholder">
-                        {challenge.creatorName?.charAt(0) || '?'}
-                      </div>
-                    )}
+                    <div className="profile-pic-container">
+                      {challenge.creatorProfilePicture ? (
+                        <img 
+                          src={challenge.creatorProfilePicture}
+                          alt="Creator profile"
+                          className="profile-pic"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.style.display = 'none';
+                            e.target.parentElement.classList.add('no-image');
+                            e.target.parentElement.innerText = challenge.creatorName?.charAt(0) || '?';
+                          }}
+                        />
+                      ) : (
+                        <div className="profile-pic-placeholder">
+                          {challenge.creatorName?.charAt(0) || '?'}
+                        </div>
+                      )}
+                      {challenge.creatorIsVerified && <span className="verification-badge">✓</span>}
+                    </div>
                     <span 
                       className={`creator-name ${String(challenge.createdBy) !== String(user.id) ? 'clickable' : ''}`}
                       onClick={() => handleProfileClick(challenge.createdBy)}
@@ -205,23 +212,26 @@ const OngoingChallenges = ({ onBack }) => {
                         key={`${participant.userId}-${participant.joinedAt}`} 
                         className="participant-item"
                       >
-                        {participant.profilePicture ? (
-                          <img 
-                            src={participant.profilePicture}
-                            alt={`${participant.name}'s profile`}
-                            className="profile-pic"
-                            onError={(e) => {
-                              e.target.onerror = null;
-                              e.target.style.display = 'none';
-                              e.target.parentElement.classList.add('no-image');
-                              e.target.parentElement.innerText = participant.name?.charAt(0) || '?';
-                            }}
-                          />
-                        ) : (
-                          <div className="profile-pic-placeholder">
-                            {participant.name?.charAt(0) || '?'}
-                          </div>
-                        )}
+                        <div className="profile-pic-container">
+                          {participant.profilePicture ? (
+                            <img 
+                              src={participant.profilePicture}
+                              alt={`${participant.name}'s profile`}
+                              className="profile-pic"
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.style.display = 'none';
+                                e.target.parentElement.classList.add('no-image');
+                                e.target.parentElement.innerText = participant.name?.charAt(0) || '?';
+                              }}
+                            />
+                          ) : (
+                            <div className="profile-pic-placeholder">
+                              {participant.name?.charAt(0) || '?'}
+                            </div>
+                          )}
+                          {participant.isVerified && <span className="verification-badge">✓</span>}
+                        </div>
                         <div className="participant-info">
                           <span 
                             className={`participant-name ${String(participant.userId) !== String(user.id) ? 'clickable' : ''}`}

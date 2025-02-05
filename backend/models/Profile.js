@@ -30,6 +30,18 @@ const ProfileSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  verificationIdPicture: {
+    type: String,
+    default: null
+  },
+  verificationFrontalPicture: {
+    type: String,
+    default: null
+  },
+  isVerified: {
+    type: Boolean,
+    default: false
+  },
   updatedAt: { 
     type: Date, 
     default: Date.now 

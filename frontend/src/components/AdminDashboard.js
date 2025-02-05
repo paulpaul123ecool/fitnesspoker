@@ -14,6 +14,8 @@ const AdminDashboard = () => {
   const [profiles, setProfiles] = useState([]);
   const [profilesError, setProfilesError] = useState(null);
   const [profilesLoading, setProfilesLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [verifyingProfile, setVerifyingProfile] = useState(null);
 
   useEffect(() => {
     if (currentPage === 'challenges') {
@@ -107,6 +109,41 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleVerifyProfile = async (profileId) => {
+    try {
+      setVerifyingProfile(profileId);
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/profile/${profileId}/verify`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to verify profile');
+      }
+
+      // Update the profiles list with the verified profile
+      setProfiles(profiles.map(profile => 
+        profile._id === profileId 
+          ? { ...profile, isVerified: true }
+          : profile
+      ));
+
+      setMessage('Profile verified successfully');
+    } catch (error) {
+      console.error('Error verifying profile:', error);
+      setMessage(`Error: ${error.message}`);
+    } finally {
+      setVerifyingProfile(null);
+    }
+  };
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -196,6 +233,19 @@ const AdminDashboard = () => {
     </div>
   );
 
+  const renderImageModal = () => {
+    if (!selectedImage) return null;
+    
+    return (
+      <div className="image-modal-overlay" onClick={() => setSelectedImage(null)}>
+        <div className="image-modal-content" onClick={e => e.stopPropagation()}>
+          <img src={selectedImage} alt="Verification" className="enlarged-image" />
+          <button className="close-modal-button" onClick={() => setSelectedImage(null)}>×</button>
+        </div>
+      </div>
+    );
+  };
+
   const renderProfilesPage = () => (
     <div className="admin-section">
       <h2>Managing Profiles</h2>
@@ -227,6 +277,9 @@ const AdminDashboard = () => {
                       {profile.name?.charAt(0) || '?'}
                     </div>
                   )}
+                  {profile.isVerified && (
+                    <div className="verification-badge">✓</div>
+                  )}
                 </div>
                 <div className="profile-info">
                   <h3 className="profile-name">{profile.name}</h3>
@@ -247,10 +300,62 @@ const AdminDashboard = () => {
                   <span className="detail-value">{formatDate(profile.createdAt)}</span>
                 </div>
               </div>
+              <div className="verification-section">
+                <h4>Verification Documents</h4>
+                <div className="verification-images">
+                  <div className="verification-image-container">
+                    <span className="verification-label">ID Picture:</span>
+                    {profile.verificationIdPicture ? (
+                      <img
+                        src={`${API_BASE_URL}${profile.verificationIdPicture}`}
+                        alt="ID verification"
+                        className="verification-pic clickable"
+                        onClick={() => setSelectedImage(`${API_BASE_URL}${profile.verificationIdPicture}`)}
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.parentElement.innerHTML = 'Image not available';
+                        }}
+                      />
+                    ) : (
+                      <span className="no-verification">Not uploaded</span>
+                    )}
+                  </div>
+                  <div className="verification-image-container">
+                    <span className="verification-label">Frontal Picture:</span>
+                    {profile.verificationFrontalPicture ? (
+                      <img
+                        src={`${API_BASE_URL}${profile.verificationFrontalPicture}`}
+                        alt="Frontal verification"
+                        className="verification-pic clickable"
+                        onClick={() => setSelectedImage(`${API_BASE_URL}${profile.verificationFrontalPicture}`)}
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.parentElement.innerHTML = 'Image not available';
+                        }}
+                      />
+                    ) : (
+                      <span className="no-verification">Not uploaded</span>
+                    )}
+                  </div>
+                </div>
+                <button 
+                  className={`verify-button ${profile.isVerified ? 'verified' : ''}`}
+                  onClick={() => handleVerifyProfile(profile._id)}
+                  disabled={profile.isVerified || verifyingProfile === profile._id}
+                >
+                  {profile.isVerified ? 'Profile Verified ✓' : 'Verify this profile'}
+                </button>
+              </div>
             </div>
           ))}
         </div>
       )}
+      {message && (
+        <div className={`message ${message.startsWith('Error') ? 'error' : 'success'}`}>
+          {message}
+        </div>
+      )}
+      {renderImageModal()}
     </div>
   );
 

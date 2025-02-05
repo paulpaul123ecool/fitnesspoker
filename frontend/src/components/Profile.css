@@ -175,6 +175,21 @@
   color: #666;
 }
 
+.verification-section {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background-color: rgba(255, 193, 7, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 193, 7, 0.2);
+}
+
+.verification-section h3 {
+  color: #ffc107;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-size: 1.2rem;
+}
+
 @media (max-width: 768px) {
   .pictures-container {
     grid-template-columns: 1fr;

@@ -12,12 +12,16 @@ const Profile = ({ onBack }) => {
     fitnessExperience: '',
     profilePicture: null,
     showcasePicture1: null,
-    showcasePicture2: null
+    showcasePicture2: null,
+    verificationIdPicture: null,
+    verificationFrontalPicture: null
   });
   const [previewUrls, setPreviewUrls] = useState({
     profile: null,
     showcase1: null,
-    showcase2: null
+    showcase2: null,
+    verificationId: null,
+    verificationFrontal: null
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -62,7 +66,9 @@ const Profile = ({ onBack }) => {
       setPreviewUrls({
         profile: data.profilePicture ? `${API_BASE_URL}${data.profilePicture}` : null,
         showcase1: data.showcasePicture1 ? `${API_BASE_URL}${data.showcasePicture1}` : null,
-        showcase2: data.showcasePicture2 ? `${API_BASE_URL}${data.showcasePicture2}` : null
+        showcase2: data.showcasePicture2 ? `${API_BASE_URL}${data.showcasePicture2}` : null,
+        verificationId: data.verificationIdPicture ? `${API_BASE_URL}${data.verificationIdPicture}` : null,
+        verificationFrontal: data.verificationFrontalPicture ? `${API_BASE_URL}${data.verificationFrontalPicture}` : null
       });
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -93,7 +99,10 @@ const Profile = ({ onBack }) => {
       }
 
       const fieldName = imageType === 'profile' ? 'profilePicture' : 
-                       imageType === 'showcase1' ? 'showcasePicture1' : 'showcasePicture2';
+                       imageType === 'showcase1' ? 'showcasePicture1' : 
+                       imageType === 'showcase2' ? 'showcasePicture2' :
+                       imageType === 'verificationId' ? 'verificationIdPicture' :
+                       'verificationFrontalPicture';
 
       setProfile(prev => ({
         ...prev,
@@ -134,6 +143,12 @@ const Profile = ({ onBack }) => {
       }
       if (profile.showcasePicture2) {
         formData.append('showcasePicture2', profile.showcasePicture2);
+      }
+      if (profile.verificationIdPicture) {
+        formData.append('verificationIdPicture', profile.verificationIdPicture);
+      }
+      if (profile.verificationFrontalPicture) {
+        formData.append('verificationFrontalPicture', profile.verificationFrontalPicture);
       }
 
       const response = await fetch(`${API_BASE_URL}/api/profile`, {
@@ -265,6 +280,43 @@ const Profile = ({ onBack }) => {
               {previewUrls.showcase2 && (
                 <div className="image-preview">
                   <img src={previewUrls.showcase2} alt="Showcase preview 2" />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="verification-section">
+          <h3>Verify Account</h3>
+          <div className="pictures-container">
+            <div className="form-group">
+              <label htmlFor="verificationIdPicture">ID Picture</label>
+              <input
+                type="file"
+                id="verificationIdPicture"
+                name="verificationIdPicture"
+                onChange={(e) => handleImageChange(e, 'verificationId')}
+                accept="image/jpeg,image/png"
+              />
+              {previewUrls.verificationId && (
+                <div className="image-preview">
+                  <img src={previewUrls.verificationId} alt="ID verification preview" />
+                </div>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="verificationFrontalPicture">Frontal Picture</label>
+              <input
+                type="file"
+                id="verificationFrontalPicture"
+                name="verificationFrontalPicture"
+                onChange={(e) => handleImageChange(e, 'verificationFrontal')}
+                accept="image/jpeg,image/png"
+              />
+              {previewUrls.verificationFrontal && (
+                <div className="image-preview">
+                  <img src={previewUrls.verificationFrontal} alt="Frontal verification preview" />
                 </div>
               )}
             </div>

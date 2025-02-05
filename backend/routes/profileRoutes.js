@@ -42,7 +42,9 @@ const upload = multer({
 }).fields([
   { name: 'profilePicture', maxCount: 1 },
   { name: 'showcasePicture1', maxCount: 1 },
-  { name: 'showcasePicture2', maxCount: 1 }
+  { name: 'showcasePicture2', maxCount: 1 },
+  { name: 'verificationIdPicture', maxCount: 1 },
+  { name: 'verificationFrontalPicture', maxCount: 1 }
 ]);
 
 // Middleware to handle multer errors
@@ -148,11 +150,15 @@ router.post('/', auth, handleUpload, async (req, res) => {
       await handlePictureUpdate('profilePicture');
       await handlePictureUpdate('showcasePicture1');
       await handlePictureUpdate('showcasePicture2');
+      await handlePictureUpdate('verificationIdPicture');
+      await handlePictureUpdate('verificationFrontalPicture');
     } else if (existingProfile) {
       // Keep existing pictures if no new ones are uploaded
       profileData.profilePicture = existingProfile.profilePicture;
       profileData.showcasePicture1 = existingProfile.showcasePicture1;
       profileData.showcasePicture2 = existingProfile.showcasePicture2;
+      profileData.verificationIdPicture = existingProfile.verificationIdPicture;
+      profileData.verificationFrontalPicture = existingProfile.verificationFrontalPicture;
     }
 
     // Update or create profile
@@ -191,6 +197,31 @@ router.post('/', auth, handleUpload, async (req, res) => {
   }
 });
 
+// Verify profile (admin only)
+router.post('/:profileId/verify', auth, async (req, res) => {
+  try {
+    // Check if user is admin
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied. Admin only.' });
+    }
+
+    const profile = await ProfileModel.findByIdAndUpdate(
+      req.params.profileId,
+      { isVerified: true },
+      { new: true }
+    );
+
+    if (!profile) {
+      return res.status(404).json({ message: 'Profile not found' });
+    }
+
+    res.json({ message: 'Profile verified successfully', profile });
+  } catch (error) {
+    console.error('Error verifying profile:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 // Get all profiles (admin only)
 router.get('/all', auth, async (req, res) => {
   try {
@@ -201,7 +232,7 @@ router.get('/all', auth, async (req, res) => {
     }
 
     const profiles = await ProfileModel.find()
-      .select('name email age fitnessExperience profilePicture createdAt')
+      .select('name email age fitnessExperience profilePicture verificationIdPicture verificationFrontalPicture isVerified createdAt')
       .sort({ createdAt: -1 });
     
     console.log('Fetched profiles:', profiles.length);

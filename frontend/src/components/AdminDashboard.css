@@ -291,6 +291,7 @@
   overflow: hidden;
   border: 2px solid #61dafb;
   box-shadow: 0 0 15px rgba(97, 218, 251, 0.3);
+  position: relative;
 }
 
 .profile-picture-container img {
@@ -307,6 +308,23 @@
   font-size: 2rem;
   color: #1a1a1a;
   font-weight: bold;
+}
+
+.verification-badge {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  width: 24px;
+  height: 24px;
+  background-color: #2ecc71;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 14px;
+  border: 2px solid #1a1a1a;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .profile-info {
@@ -402,4 +420,182 @@
     flex-direction: column;
     gap: 0.5rem;
   }
+}
+
+.verification-section {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.verification-section h4 {
+  margin: 0 0 1rem 0;
+  color: #61dafb;
+  font-size: 1rem;
+}
+
+.verification-images {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.verification-image-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.verification-label {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+}
+
+.verification-pic {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.verification-pic.clickable {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.verification-pic.clickable:hover {
+  transform: scale(1.05);
+}
+
+.image-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 2rem;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.image-modal-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  animation: zoomIn 0.3s ease-out;
+}
+
+.enlarged-image {
+  max-width: 100%;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.close-modal-button {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.close-modal-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (max-width: 768px) {
+  .image-modal-overlay {
+    padding: 1rem;
+  }
+
+  .close-modal-button {
+    top: -50px;
+    right: 0;
+  }
+}
+
+.no-verification {
+  padding: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+  font-size: 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.verify-button {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  background-color: rgba(46, 204, 113, 0.2);
+  color: #2ecc71;
+  border: 1px solid rgba(46, 204, 113, 0.3);
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.verify-button:hover {
+  background-color: rgba(46, 204, 113, 0.3);
+  transform: translateY(-2px);
+}
+
+.verify-button:disabled {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.3);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.verify-button.verified {
+  background-color: rgba(46, 204, 113, 0.3);
+  color: #2ecc71;
+  border-color: #2ecc71;
+  cursor: default;
+}
+
+.verify-button.verified:hover {
+  transform: none;
+  background-color: rgba(46, 204, 113, 0.3);
 } 

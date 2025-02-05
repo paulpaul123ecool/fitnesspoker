@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import Chat from './Chat';
 import ProfilePopup from './ProfilePopup';
 import './AllChallenges.css';
 
@@ -11,7 +10,6 @@ const AllChallenges = ({ onBack, onNavigateToOngoing }) => {
   const [challenges, setChallenges] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeChatId, setActiveChatId] = useState(null);
   const [selectedProfile, setSelectedProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -122,10 +120,6 @@ const AllChallenges = ({ onBack, onNavigateToOngoing }) => {
     });
   };
 
-  const handleChatClick = (challengeId) => {
-    setActiveChatId(activeChatId === challengeId ? null : challengeId);
-  };
-
   const getChallengeStatusClass = (status) => {
     switch (status) {
       case 'active':
@@ -196,12 +190,6 @@ const AllChallenges = ({ onBack, onNavigateToOngoing }) => {
                       </button>
                     ) : (
                       <>
-                        <button
-                          className="action-button chat"
-                          onClick={() => handleChatClick(challenge._id)}
-                        >
-                          {activeChatId === challenge._id ? 'Close Chat' : 'Open Chat'}
-                        </button>
                         {!challenge.isParticipant && (
                           <button
                             className="action-button"
@@ -267,14 +255,6 @@ const AllChallenges = ({ onBack, onNavigateToOngoing }) => {
                     </span>
                   )}
                 </div>
-                {activeChatId === challenge._id && (
-                  <div className="chat-section">
-                    <Chat 
-                      challengeId={challenge._id}
-                      creatorId={challenge.createdBy}
-                    />
-                  </div>
-                )}
               </div>
             ))}
           </div>

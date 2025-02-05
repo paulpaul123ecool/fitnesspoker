@@ -11,7 +11,8 @@ const ProfileSchema = new mongoose.Schema({
   age: { type: Number, required: true },
   fitnessExperience: { type: String, required: true },
   profilePicture: { type: String },
-  updatedAt: { type: Date, default: Date.now }
+  updatedAt: { type: Date, default: Date.now },
+  isVerified: { type: Boolean, default: false }
 });
 
 let Profile;
@@ -46,21 +47,27 @@ router.get('/all', auth, async (req, res) => {
     const profileMap = profiles.reduce((map, profile) => {
       map[profile.userId] = {
         name: profile.name || 'Unknown User',
-        profilePicture: profile.profilePicture ? `http://localhost:5000${profile.profilePicture}` : null
+        profilePicture: profile.profilePicture ? `http://localhost:5000${profile.profilePicture}` : null,
+        isVerified: profile.isVerified || false
       };
       return map;
     }, {});
     
     // Add user information to each challenge
     const enhancedChallenges = challenges.map(challenge => {
-      const creatorProfile = profileMap[challenge.createdBy] || { name: 'Unknown User', profilePicture: null };
+      const creatorProfile = profileMap[challenge.createdBy] || { 
+        name: 'Unknown User', 
+        profilePicture: null,
+        isVerified: false
+      };
       const isCreator = String(challenge.createdBy) === String(req.user.id);
       
       return {
         ...challenge.toObject(),
         isCreator,
         creatorName: creatorProfile.name,
-        creatorProfilePicture: creatorProfile.profilePicture
+        creatorProfilePicture: creatorProfile.profilePicture,
+        creatorIsVerified: creatorProfile.isVerified
       };
     });
     
