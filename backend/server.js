@@ -21,6 +21,7 @@ const profileRoutes = require('./routes/profileRoutes');
 const challengeRoutes = require('./routes/challengeRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const userRoutes = require('./routes/userRoutes');
+const reportRoutes = require('./routes/reportRoutes');
 const auth = require('./middleware/auth');
 
 const app = express();
@@ -120,6 +121,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/challenges', challengeRoutes);
 app.use('/api/chats', chatRoutes);
+app.use('/api/reports', reportRoutes);
 app.use('/api', userRoutes);
 
 // Endpoint pentru verificarea rolului

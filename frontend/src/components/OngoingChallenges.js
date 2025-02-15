@@ -139,6 +139,11 @@ const OngoingChallenges = ({ onBack }) => {
     });
   };
 
+  const formatDuration = (duration, unit) => {
+    // Implement duration formatting logic based on the unit
+    return `${duration} ${unit}`;
+  };
+
   return (
     <div className="ongoing-challenges">
       <header className="ongoing-challenges-header">
@@ -165,11 +170,20 @@ const OngoingChallenges = ({ onBack }) => {
                   <h2 className="challenge-title">{challenge.name}</h2>
                 </div>
                 
-                <p className="challenge-description">{challenge.description}</p>
+                <div className="challenge-exercise-details">
+                  <p className="exercise-info">
+                    Every day we will do <span className="highlight">{challenge.exerciseCount}</span> {challenge.exerciseType}
+                  </p>
+                </div>
                 
                 <div className="bet-info">
                   <span className="bet-amount">Bet: ${challenge.originalBet}</span>
                   <span className="created-date">Created: {formatDate(challenge.createdAt)}</span>
+                </div>
+
+                <div className="challenge-time-info">
+                  <span className="duration">Duration: {formatDuration(challenge.duration, challenge.durationUnit)}</span>
+                  <span className="first-raise">First Raise: Day {challenge.firstRaiseTime}</span>
                 </div>
 
                 <div className="creator-section">

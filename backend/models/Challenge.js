@@ -5,9 +5,26 @@ const challengeSchema = new mongoose.Schema({
     type: String, 
     required: true 
   },
-  description: { 
-    type: String, 
-    required: true 
+  exerciseType: {
+    type: String,
+    required: true,
+    enum: ['pushups', 'squats', 'situps', 'pullups']
+  },
+  exerciseCount: {
+    type: Number,
+    required: true,
+    min: 1
+  },
+  firstRaiseTime: {
+    type: Number,
+    required: true,
+    min: 1,
+    validate: {
+      validator: function(v) {
+        return v <= Math.floor(this.duration / 2);
+      },
+      message: 'First raise time must be less than or equal to half of the challenge duration'
+    }
   },
   originalBet: { 
     type: Number, 

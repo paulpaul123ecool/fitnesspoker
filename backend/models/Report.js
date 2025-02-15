@@ -2,21 +2,25 @@ const mongoose = require('mongoose');
 
 const reportSchema = new mongoose.Schema({
   reporterId: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
     required: true
   },
   reportedUserId: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
     required: true
   },
   challengeId: {
-    type: String,
-    // Optional since reports can be on users or challenges
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Challenge'
+  },
+  videoUrl: {
+    type: String
   },
   reason: {
     type: String,
-    required: true,
-    default: 'Flagged for review'
+    required: true
   },
   status: {
     type: String,

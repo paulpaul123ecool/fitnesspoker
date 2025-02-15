@@ -22,6 +22,13 @@ const chatSchema = new mongoose.Schema({
     read: {
         type: Boolean,
         default: false
+    },
+    verification: {
+        type: {
+            videoUrl: String,
+            timestamp: Date
+        },
+        default: null
     }
 });
 

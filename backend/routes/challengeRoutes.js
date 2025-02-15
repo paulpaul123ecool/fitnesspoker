@@ -3,6 +3,9 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const mongoose = require('mongoose');
 const Challenge = require('../models/Challenge');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
 // Define Profile Schema if not already defined
 const ProfileSchema = new mongoose.Schema({
@@ -21,6 +24,41 @@ try {
 } catch {
   Profile = mongoose.model('Profile', ProfileSchema);
 }
+
+// Configure multer for video uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadPath = path.join(__dirname, '..', 'uploads', 'verifications');
+    // Ensure directory exists
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+    cb(null, uploadPath);
+  },
+  filename: function (req, file, cb) {
+    const timestamp = Date.now();
+    const ext = path.extname(file.originalname);
+    // Format: verification-[challengeId]-[timestamp]-[userId]-[originalname]
+    cb(null, `verification-${req.params.challengeId}-${timestamp}-${req.user.id}${ext}`);
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 100 * 1024 * 1024 // 100MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    const filetypes = /mp4|mov|avi|wmv/;
+    const mimetype = filetypes.test(file.mimetype);
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+
+    if (mimetype && extname) {
+      return cb(null, true);
+    }
+    cb(new Error('Only video files are allowed!'));
+  }
+});
 
 // Get all challenges (must be defined before other routes)
 router.get('/all', auth, async (req, res) => {
@@ -329,6 +367,52 @@ router.get('/admin/ongoing', auth, async (req, res) => {
     res.json(enhancedChallenges);
   } catch (error) {
     console.error('Error fetching admin ongoing challenges:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Upload daily verification video
+router.post('/:challengeId/verify-daily', auth, upload.single('video'), async (req, res) => {
+  try {
+    const challenge = await Challenge.findById(req.params.challengeId);
+    
+    if (!challenge) {
+      return res.status(404).json({ message: 'Challenge not found' });
+    }
+
+    // Check if user is part of the challenge
+    const isCreator = String(challenge.createdBy) === String(req.user.id);
+    const isParticipant = challenge.participants.some(p => String(p.userId) === String(req.user.id));
+
+    if (!isCreator && !isParticipant) {
+      return res.status(403).json({ message: 'Not authorized to submit verification for this challenge' });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ message: 'No video file uploaded' });
+    }
+
+    // Add verification record to challenge
+    const verificationEntry = {
+      userId: req.user.id,
+      videoUrl: `/uploads/verifications/${req.file.filename}`,
+      timestamp: new Date()
+    };
+
+    if (!challenge.verifications) {
+      challenge.verifications = [];
+    }
+
+    challenge.verifications.push(verificationEntry);
+    await challenge.save();
+
+    res.json({ 
+      message: 'Verification video uploaded successfully',
+      verification: verificationEntry
+    });
+
+  } catch (error) {
+    console.error('Error uploading verification video:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });

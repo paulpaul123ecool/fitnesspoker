@@ -23,13 +23,22 @@ router.get('/:userId/messages', auth, async (req, res) => {
 // Send a new message
 router.post('/:userId/messages', auth, async (req, res) => {
   try {
-    const newMessage = new Chat({
+    const messageData = {
       senderId: req.user.id,
       receiverId: req.params.userId,
       content: req.body.content,
       timestamp: new Date()
-    });
+    };
 
+    // If this is a verification message, add the verification data
+    if (req.body.content.startsWith('[Daily Verification Video Uploaded for Challenge:') && req.body.verification) {
+      messageData.verification = {
+        videoUrl: req.body.verification.videoUrl,
+        timestamp: new Date()
+      };
+    }
+
+    const newMessage = new Chat(messageData);
     await newMessage.save();
 
     // Emit the message through Socket.IO

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import './AdminDashboard.css';
+import AdminReports from './AdminReports';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
@@ -10,18 +11,22 @@ const AdminDashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [challenges, setChallenges] = useState([]);
   const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState('challenges'); // 'challenges' or 'profiles'
+  const [currentPage, setCurrentPage] = useState('challenges'); // 'challenges' or 'profiles' or 'reports'
   const [profiles, setProfiles] = useState([]);
   const [profilesError, setProfilesError] = useState(null);
   const [profilesLoading, setProfilesLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(null);
   const [verifyingProfile, setVerifyingProfile] = useState(null);
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (currentPage === 'challenges') {
       fetchOngoingChallenges();
     } else if (currentPage === 'profiles') {
       fetchProfiles();
+    } else if (currentPage === 'reports') {
+      fetchReports();
     }
   }, [currentPage]);
 
@@ -76,6 +81,29 @@ const AdminDashboard = () => {
       setProfilesError(error.message);
     } finally {
       setProfilesLoading(false);
+    }
+  };
+
+  const fetchReports = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}/api/reports`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch reports');
+      }
+
+      const data = await response.json();
+      setReports(data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching reports:', error);
+      setError(error.message);
+      setLoading(false);
     }
   };
 
@@ -141,6 +169,32 @@ const AdminDashboard = () => {
       setMessage(`Error: ${error.message}`);
     } finally {
       setVerifyingProfile(null);
+    }
+  };
+
+  const handleUpdateReportStatus = async (reportId, newStatus) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}/api/reports/${reportId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update report status');
+      }
+
+      // Update the report status in the local state
+      setReports(reports.map(report => 
+        report._id === reportId ? { ...report, status: newStatus } : report
+      ));
+    } catch (error) {
+      console.error('Error updating report status:', error);
+      setError('Failed to update report status');
     }
   };
 
@@ -359,6 +413,88 @@ const AdminDashboard = () => {
     </div>
   );
 
+  const renderReportsPage = () => (
+    <div className="admin-section reports-section">
+      <h2>Report Management</h2>
+      {loading ? (
+        <div className="loading">Loading reports...</div>
+      ) : error ? (
+        <div className="error-message">{error}</div>
+      ) : reports.length === 0 ? (
+        <div className="no-reports">No reports found</div>
+      ) : (
+        <div className="reports-grid">
+          {reports.map(report => (
+            <div key={report._id} className="report-card">
+              <div className="report-header">
+                <h3>Report #{report._id}</h3>
+                <span className={`status ${report.status}`}>{report.status}</span>
+              </div>
+              
+              <div className="report-content">
+                <div className="user-details">
+                  <div className="reporter-info">
+                    <strong>Reporter:</strong> {report.reporterId?.name || 'Unknown User'}
+                  </div>
+                  <div className="reported-user-info">
+                    <strong>Reported User:</strong> {report.reportedUserId?.name || 'Unknown User'}
+                  </div>
+                </div>
+
+                {report.challengeId && (
+                  <div className="challenge-info">
+                    <strong>Challenge:</strong> {report.challengeId.name}
+                    <p>{report.challengeId.description}</p>
+                  </div>
+                )}
+
+                <div className="report-reason">
+                  <strong>Reason:</strong>
+                  <p>{report.reason}</p>
+                </div>
+
+                {report.videoUrl && (
+                  <div className="video-container">
+                    <strong>Reported Video:</strong>
+                    <video 
+                      controls 
+                      preload="metadata"
+                      className="reported-video"
+                    >
+                      <source src={`${API_BASE_URL}${report.videoUrl}`} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
+                )}
+
+                <div className="report-date">
+                  <strong>Reported on:</strong> {formatDate(report.createdAt)}
+                </div>
+
+                <div className="report-actions">
+                  <button
+                    onClick={() => handleUpdateReportStatus(report._id, 'reviewed')}
+                    className={`action-button ${report.status === 'reviewed' ? 'active' : ''}`}
+                    disabled={report.status === 'reviewed'}
+                  >
+                    Mark as Reviewed
+                  </button>
+                  <button
+                    onClick={() => handleUpdateReportStatus(report._id, 'dismissed')}
+                    className={`action-button ${report.status === 'dismissed' ? 'active' : ''}`}
+                    disabled={report.status === 'dismissed'}
+                  >
+                    Dismiss Report
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <div className="admin-dashboard">
       <header className="dashboard-header">
@@ -376,6 +512,12 @@ const AdminDashboard = () => {
           >
             Managing Profiles
           </button>
+          <button 
+            className={`nav-button ${currentPage === 'reports' ? 'active' : ''}`}
+            onClick={() => setCurrentPage('reports')}
+          >
+            Report Management
+          </button>
         </div>
         <div className="admin-info">
           <p>Welcome, Administrator {user.email}</p>
@@ -385,7 +527,9 @@ const AdminDashboard = () => {
         </div>
       </header>
       <div className="dashboard-content">
-        {currentPage === 'challenges' ? renderChallengesPage() : renderProfilesPage()}
+        {currentPage === 'challenges' ? renderChallengesPage() :
+         currentPage === 'profiles' ? renderProfilesPage() :
+         currentPage === 'reports' ? renderReportsPage() : null}
       </div>
     </div>
   );

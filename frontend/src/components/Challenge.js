@@ -8,7 +8,9 @@ const Challenge = ({ onBack }) => {
   const { user } = useAuth();
   const [challenge, setChallenge] = useState({
     name: '',
-    description: '',
+    exerciseType: 'pushups',
+    exerciseCount: '',
+    firstRaiseTime: '',
     originalBet: '',
     duration: '',
     durationUnit: 'days'
@@ -28,14 +30,22 @@ const Challenge = ({ onBack }) => {
     if (!challenge.name.trim()) {
       throw new Error('Challenge name is required');
     }
-    if (!challenge.description.trim()) {
-      throw new Error('Challenge description is required');
+    if (!challenge.exerciseCount || isNaN(challenge.exerciseCount) || challenge.exerciseCount <= 0) {
+      throw new Error('Exercise count must be a positive number');
+    }
+    if (!challenge.firstRaiseTime || isNaN(challenge.firstRaiseTime) || challenge.firstRaiseTime <= 0) {
+      throw new Error('First raise time must be a positive number');
     }
     if (!challenge.originalBet || isNaN(challenge.originalBet) || challenge.originalBet <= 0) {
       throw new Error('Original bet must be a positive number');
     }
     if (!challenge.duration || isNaN(challenge.duration) || challenge.duration <= 0) {
       throw new Error('Duration must be a positive number');
+    }
+    // Validate that firstRaiseTime is not greater than half of the duration
+    const maxFirstRaiseTime = Math.floor(challenge.duration / 2);
+    if (challenge.firstRaiseTime > maxFirstRaiseTime) {
+      throw new Error(`First raise time must be less than or equal to ${maxFirstRaiseTime} ${challenge.durationUnit}`);
     }
   };
 
@@ -54,6 +64,8 @@ const Challenge = ({ onBack }) => {
 
       const challengeData = {
         ...challenge,
+        exerciseCount: parseInt(challenge.exerciseCount),
+        firstRaiseTime: parseInt(challenge.firstRaiseTime),
         originalBet: parseFloat(challenge.originalBet),
         duration: parseInt(challenge.duration),
         createdBy: user.id
@@ -108,16 +120,32 @@ const Challenge = ({ onBack }) => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="description">Description</label>
-          <textarea
-            id="description"
-            name="description"
-            value={challenge.description}
-            onChange={handleInputChange}
-            placeholder="Describe your challenge"
-            rows="4"
-            required
-          />
+          <label>Exercise Details</label>
+          <div className="exercise-input">
+            <span className="exercise-text">Every day we will do</span>
+            <input
+              type="number"
+              id="exerciseCount"
+              name="exerciseCount"
+              value={challenge.exerciseCount}
+              onChange={handleInputChange}
+              placeholder="Enter number"
+              min="1"
+              required
+              className="exercise-count"
+            />
+            <select
+              name="exerciseType"
+              value={challenge.exerciseType}
+              onChange={handleInputChange}
+              className="exercise-type"
+            >
+              <option value="pushups">Pushups</option>
+              <option value="squats">Squats</option>
+              <option value="situps">Situps</option>
+              <option value="pullups">Pullups</option>
+            </select>
+          </div>
         </div>
 
         <div className="form-group">
@@ -156,6 +184,26 @@ const Challenge = ({ onBack }) => {
               <option value="days">Days</option>
               <option value="weeks">Weeks</option>
             </select>
+          </div>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="firstRaiseTime">First Raise Time (in {challenge.durationUnit})</label>
+          <div className="first-raise-info">
+            <input
+              type="number"
+              id="firstRaiseTime"
+              name="firstRaiseTime"
+              value={challenge.firstRaiseTime}
+              onChange={handleInputChange}
+              placeholder={`Enter time (max: ${Math.floor(challenge.duration / 2) || '?'} ${challenge.durationUnit})`}
+              min="1"
+              max={Math.floor(challenge.duration / 2)}
+              required
+            />
+            <span className="helper-text">
+              Must be less than or equal to half of the duration
+            </span>
           </div>
         </div>
 

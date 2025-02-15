@@ -178,7 +178,7 @@ const AllChallenges = ({ onBack, onNavigateToOngoing }) => {
             {challenges.map(challenge => (
               <div key={challenge._id} className="challenge-card">
                 <div className="challenge-header">
-                  <h4>{challenge.title}</h4>
+                  <h4>{challenge.name}</h4>
                   <div className="challenge-actions">
                     {String(challenge.createdBy) === String(user.id) ? (
                       <button
@@ -203,13 +203,20 @@ const AllChallenges = ({ onBack, onNavigateToOngoing }) => {
                     )}
                   </div>
                 </div>
-                <p className="challenge-description">{challenge.description}</p>
+                <div className="challenge-exercise-details">
+                  <p className="exercise-info">
+                    Every day we will do <span className="highlight">{challenge.exerciseCount}</span> {challenge.exerciseType}
+                  </p>
+                </div>
                 <div className="challenge-details">
                   <span className="challenge-bet">
                     Bet: ${challenge.originalBet}
                   </span>
                   <span className="challenge-duration">
                     Duration: {formatDuration(challenge.duration, challenge.durationUnit)}
+                  </span>
+                  <span className="first-raise">
+                    First Raise: Day {challenge.firstRaiseTime}
                   </span>
                   <span className={`challenge-status ${getChallengeStatusClass(challenge.status)}`}>
                     Status: {challenge.status}

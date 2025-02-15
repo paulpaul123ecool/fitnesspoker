@@ -598,4 +598,152 @@
 .verify-button.verified:hover {
   transform: none;
   background-color: rgba(46, 204, 113, 0.3);
+}
+
+.reports-section {
+  padding: 2rem;
+}
+
+.reports-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.report-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.report-card:hover {
+  transform: translateY(-2px);
+}
+
+.report-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.report-header h3 {
+  margin: 0;
+  color: #61dafb;
+  font-size: 1.2rem;
+}
+
+.report-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.user-details, .challenge-info, .report-reason, .report-date {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.reporter-info, .reported-user-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.status {
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.status.pending {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+}
+
+.status.reviewed {
+  background: rgba(40, 167, 69, 0.2);
+  color: #28a745;
+}
+
+.status.dismissed {
+  background: rgba(108, 117, 125, 0.2);
+  color: #6c757d;
+}
+
+.video-container {
+  margin: 1rem 0;
+}
+
+.reported-video {
+  width: 100%;
+  max-height: 300px;
+  border-radius: 8px;
+  background: #000;
+}
+
+.report-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.action-button {
+  flex: 1;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.action-button:not(.active):not(:disabled) {
+  background: rgba(97, 218, 251, 0.1);
+  color: #61dafb;
+}
+
+.action-button:not(.active):not(:disabled):hover {
+  background: rgba(97, 218, 251, 0.2);
+  transform: translateY(-2px);
+}
+
+.action-button.active {
+  background: rgba(40, 167, 69, 0.2);
+  color: #28a745;
+  cursor: default;
+}
+
+.action-button:disabled {
+  background: rgba(108, 117, 125, 0.1);
+  color: rgba(108, 117, 125, 0.5);
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .reports-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .report-card {
+    padding: 1rem;
+  }
+
+  .report-actions {
+    flex-direction: column;
+  }
 } 

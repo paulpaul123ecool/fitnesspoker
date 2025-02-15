@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
+import { BrowserRouter } from 'react-router-dom';
 import Auth from './components/Auth';
 import UserDashboard from './components/UserDashboard';
 import AdminDashboard from './components/AdminDashboard';
@@ -92,9 +93,11 @@ function MainContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <MainContent />
-    </AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <MainContent />
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 

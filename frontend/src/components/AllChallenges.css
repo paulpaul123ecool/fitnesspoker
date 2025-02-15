@@ -406,6 +406,32 @@
   transform-origin: left;
 }
 
+.challenge-exercise-details {
+  background: rgba(97, 218, 251, 0.05);
+  padding: 1.2rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  border: 1px solid rgba(97, 218, 251, 0.2);
+}
+
+.exercise-info {
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  text-align: center;
+  margin: 0;
+}
+
+.exercise-info .highlight {
+  color: #61dafb;
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.first-raise {
+  color: #ffc107 !important;
+  font-weight: 600;
+}
+
 @media (max-width: 768px) {
   .all-challenges-header {
     flex-direction: column;

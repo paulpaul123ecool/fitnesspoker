@@ -118,4 +118,55 @@
   color: #155724;
   border: 1px solid #c3e6cb;
   border-radius: 4px;
+}
+
+.exercise-input {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(97, 218, 251, 0.05);
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(97, 218, 251, 0.2);
+}
+
+.exercise-text {
+  color: #333;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.exercise-count {
+  width: 100px !important;
+  text-align: center;
+}
+
+.exercise-type {
+  min-width: 120px;
+  background-color: #fff;
+}
+
+.first-raise-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.helper-text {
+  font-size: 0.85rem;
+  color: #666;
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .exercise-input {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .exercise-count,
+  .exercise-type {
+    width: 100% !important;
+  }
 } 

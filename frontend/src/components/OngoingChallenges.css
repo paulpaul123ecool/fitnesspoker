@@ -399,4 +399,38 @@
 .clickable:hover::after {
   transform: scaleX(1);
   transform-origin: left;
+}
+
+.ongoing-challenge-exercise {
+  background: rgba(97, 218, 251, 0.05);
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 0.8rem 0;
+  border: 1px solid rgba(97, 218, 251, 0.2);
+}
+
+.ongoing-exercise-info {
+  color: var(--text-primary);
+  font-size: 1rem;
+  text-align: left;
+  margin: 0.5rem 0;
+}
+
+.ongoing-exercise-info .highlight {
+  color: #61dafb;
+  font-weight: 600;
+}
+
+.ongoing-time-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.8rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid rgba(97, 218, 251, 0.2);
+}
+
+.ongoing-time-info span {
+  color: #ffc107;
+  font-weight: 500;
 } 

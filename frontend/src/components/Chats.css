@@ -221,6 +221,178 @@
   background: rgba(97, 218, 251, 0.3);
 }
 
+.daily-verification-button {
+  background: rgba(46, 204, 113, 0.2);
+  border: 1px solid rgba(46, 204, 113, 0.3);
+  color: #2ecc71;
+  padding: 0 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.daily-verification-button:hover {
+  background: rgba(46, 204, 113, 0.3);
+}
+
+.verification-button-container {
+  position: relative;
+}
+
+.challenge-dropdown {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  background: rgba(30, 30, 30, 0.95);
+  border: 1px solid rgba(46, 204, 113, 0.3);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  min-width: 200px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.challenge-dropdown-item {
+  padding: 10px 15px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.challenge-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.challenge-dropdown-item:hover {
+  background: rgba(46, 204, 113, 0.2);
+}
+
+.verification-message {
+  max-width: 85% !important;
+}
+
+.verification-text {
+  margin-bottom: 10px;
+  font-weight: 500;
+  color: #2ecc71;
+}
+
+.verification-video {
+  width: 100%;
+  max-height: 300px;
+  border-radius: 8px;
+  margin-top: 10px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.verification-video-container {
+  position: relative;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.report-video-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 59, 48, 0.8);
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background-color 0.2s;
+  z-index: 1;
+}
+
+.report-video-button:hover {
+  background: rgba(255, 59, 48, 1);
+}
+
+.report-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.report-popup {
+  background: #1e1e1e;
+  border-radius: 8px;
+  padding: 20px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.report-popup h3 {
+  color: #fff;
+  margin: 0 0 15px 0;
+  text-align: center;
+}
+
+.report-popup textarea {
+  width: 100%;
+  height: 150px;
+  padding: 10px;
+  margin-bottom: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  color: #fff;
+  resize: vertical;
+}
+
+.report-popup textarea:focus {
+  outline: none;
+  border-color: rgba(255, 59, 48, 0.5);
+}
+
+.report-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.submit-report,
+.cancel-report {
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.submit-report {
+  background: rgba(255, 59, 48, 0.8);
+  color: white;
+}
+
+.submit-report:hover {
+  background: rgba(255, 59, 48, 1);
+}
+
+.cancel-report {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.cancel-report:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
 @media (max-width: 768px) {
   .chats {
     padding: 1rem;
